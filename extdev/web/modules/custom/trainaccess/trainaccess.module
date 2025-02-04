@@ -22,8 +22,6 @@
             ];
 
             $message = strtr($textEmail, $mailValues);
-            var_dump($message);
-            //die();
             $mailManager = \Drupal::service('plugin.manager.mail');
             $module = 'trainaccess';
             $key = 'train_access_mail';
