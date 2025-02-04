@@ -1,0 +1,6 @@
+name: Cybersecurity Training Access
+description: Proccess to access Cybersecurity Training
+package: CyberSecuity
+
+type: module
+core_version_requirement: ^10.3 || ^11
