@@ -1,0 +1,7 @@
+example.settings:
+  path: '/admin/config/trainaccess/settings'
+  defaults:
+    _form: '\Drupal\trainaccess\Form\TrainaccessSettingsForm'
+    _title: 'Training Access Setting'
+  requirements:
+    _permission: 'administer site configuration'

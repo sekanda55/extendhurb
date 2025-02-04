@@ -1,0 +1,59 @@
+<?php
+
+    use Drupal\node\NodeInterface;
+    use Drupal\taxonomy\Entity\Term;
+    use Drupal\node\Entity\Node;
+
+    function trainaccess_node_insert(NodeInterface $node) {
+
+        $nodeType = \Drupal::config('trainaccess.settings')->get('ct_email');
+        $textEmail = \Drupal::config('trainaccess.settings')->get('train_txt_email')['value'];
+
+
+        if($node->bundle() == $nodeType){
+
+            $applicantEmail = $node->field_applicant_email->value;
+            $trainNode = Node::load(intval($node->field_node_training->target_id));
+            $trainTitle = $trainNode->title->value;
+
+            $mailValues = [ 
+                '{training_title}' => $trainTitle,
+                '{user_email}' => $applicantEmail,
+            ];
+
+            $message = strtr($textEmail, $mailValues);
+            var_dump($message);
+            //die();
+            $mailManager = \Drupal::service('plugin.manager.mail');
+            $module = 'trainaccess';
+            $key = 'train_access_mail';
+            $to = \Drupal::config('trainaccess.settings')->get('recipient_email'); //\Drupal::config('system.site')->get('mail');
+            $params['message'] =  $message;
+            $params['subject'] = "New post: Article feed";
+            $langcode = \Drupal::currentUser()->getPreferredLangcode();
+            $send = true;
+
+            $result = $mailManager->mail($module, $key, $to, $langcode, $params, NULL, $send);
+            if ($result['result'] !== true) {
+                \Drupal::messenger()->addStatus(t('There was a problem sending your message and it was not sent.'), 'error');
+            }
+            else {
+                \Drupal::messenger()->addStatus(t('Your request has been sent.'));
+            }
+        }
+
+    }
+
+    function trainaccess_mail($key, &$message, $params){
+        $options = array(
+            'langcode' => $message['langcode'],
+        );
+        switch ($key) {
+            case 'train_access_mail':
+            $message['from'] = \Drupal::config('system.site')->get('mail');
+            $message['subject'] = t('CyberSecurity | @subject', ['@subject' => $params['subject']], $options);
+            $message['body'][] = $params['message'];
+            break;
+        }
+    }
+
